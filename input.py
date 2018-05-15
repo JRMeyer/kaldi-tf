@@ -34,11 +34,17 @@ def input_fn(filenames):
 if __name__ == "__main__":
 
   # for example in tf.python_io.tf_record_iterator("/home/ubuntu/csv.tfrecords"):
-        # result = tf.train.Example.FromString(example)
-        # print(result)
-        # exit()
-
+      # result = tf.train.Example.FromString(example)
+      # print(result)
+      # exit()
+  
   with tf.Session() as sess:
-        ex = sess.run(input_fn('/home/ubuntu/csv.tfrecords'))
-        print(ex)
+        label, mfccs = sess.run(input_fn('/home/ubuntu/csv.tfrecords'))
+        print(label)
 
+
+
+
+exit()
+
+# https://medium.com/@TalPerry/getting-text-into-tensorflow-with-the-dataset-api-ffb832c8bec6
