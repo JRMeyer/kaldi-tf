@@ -21,7 +21,7 @@ def my_input_fn(filepath='/home/ubuntu/csv.tfrecords'):
   dataset = tf.data.TFRecordDataset(filepath)
   dataset = dataset.map(parser)
   dataset = dataset.shuffle(buffer_size=256)
-  dataset = dataset.batch(32)
+  dataset = dataset.batch(1)
   
   iterator = dataset.make_one_shot_iterator()
 
@@ -37,7 +37,7 @@ with tf.Session() as sess:
 # Create the feature_columns, which specifies the input to our model.
 # All our input features are numeric, so use numeric_column for each one.
 # I have 377 floats for each mfcc window
-feature_columns = [tf.feature_column.numeric_column(key='mfccs', dtype=tf.float64)]
+feature_columns = [tf.feature_column.numeric_column(key='mfccs', dtype=tf.float64, shape=(377,))]
 
 
 # Use the DNNClassifier pre-made estimator
