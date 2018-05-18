@@ -17,11 +17,11 @@ def parser(record):
   return {'mfccs': mfccs}, label
 
 
-def my_input_fn(filepath='/home/ubuntu/csv.tfrecords'):
-  dataset = tf.data.TFRecordDataset(filepath)
+def my_input_fn(tfrecords_path):
+  dataset = tf.data.TFRecordDataset(tfrecords_path)
   dataset = dataset.map(parser)
   dataset = dataset.shuffle(buffer_size=256)
-#  dataset = dataset.take(64)
+
   dataset = dataset.batch(1)
   
   iterator = dataset.make_one_shot_iterator()
@@ -32,7 +32,6 @@ def my_input_fn(filepath='/home/ubuntu/csv.tfrecords'):
 
 
 # Create the feature_columns, which specifies the input to our model.
-# All our input features are numeric, so use numeric_column for each one.
 # I have 377 floats for each mfcc window
 feature_columns = [tf.feature_column.numeric_column(key='mfccs', dtype=tf.float64, shape=(377,))]
 
@@ -46,18 +45,15 @@ classifier = tf.estimator.DNNClassifier(
 
 
 
-# Train our model, use the previously function my_input_fn
-# Input to training is a file with training example
-# Stop training after 8 iterations of train data (epochs)
+train_spec = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/train.tfrecords') , max_steps=1000)
+eval_spec = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords') )
 
-with tf.Session() as sess:
-  sess.run(
-    classifier.train(      
-      input_fn=lambda: my_input_fn()
-    )
-  )
+tf.estimator.train_and_evaluate(classifier, train_spec, eval_spec)
+
+
 
 exit()                                                                                         
+
 
 # def train_kmeans(batch):
 #     kmeansEstimator = tf.contrib.factorization.KMeansClustering(num_clusters=1000, use_mini_batch=False)

@@ -4,10 +4,12 @@ import tensorflow as tf
 import numpy as np
 
 infile=sys.argv[1]
+outfile=sys.argv[2]
+
 csv = pandas.read_csv(infile).values
 
 
-with tf.python_io.TFRecordWriter("csv.tfrecords") as writer:
+with tf.python_io.TFRecordWriter(outfile) as writer:
     for row in csv:
         # row is read as a single char string, so remove problems (the extra ]) and split
         row = row[0].replace("]","").rstrip().split(' ')
