@@ -21,6 +21,7 @@ def my_input_fn(filepath='/home/ubuntu/csv.tfrecords'):
   dataset = tf.data.TFRecordDataset(filepath)
   dataset = dataset.map(parser)
   dataset = dataset.shuffle(buffer_size=256)
+#  dataset = dataset.take(64)
   dataset = dataset.batch(1)
   
   iterator = dataset.make_one_shot_iterator()
@@ -29,10 +30,6 @@ def my_input_fn(filepath='/home/ubuntu/csv.tfrecords'):
 
   return batch_mfccs, batch_labels
 
-
-with tf.Session() as sess:
-  feats, labs =sess.run(my_input_fn())
-  print(len(feats), len(feats['mfccs'][0]))
 
 # Create the feature_columns, which specifies the input to our model.
 # All our input features are numeric, so use numeric_column for each one.
@@ -45,7 +42,7 @@ classifier = tf.estimator.DNNClassifier(
   feature_columns=feature_columns, # The input features to our model
   hidden_units=[10, 10], # Two layers, each with 10 neurons
   n_classes=96,
-  model_dir='/tmp/') # Path to where checkpoints etc are stored
+  model_dir='/tmp/tf') # Path to where checkpoints etc are stored
 
 
 
@@ -55,7 +52,7 @@ classifier = tf.estimator.DNNClassifier(
 
 with tf.Session() as sess:
   sess.run(
-    classifier.train(
+    classifier.train(      
       input_fn=lambda: my_input_fn()
     )
   )
