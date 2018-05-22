@@ -17,7 +17,7 @@ def parser(record):
   return {'mfccs': mfccs}, label
 
 
-def my_input_fn(tfrecords_path):
+def my_input_fn(tfrecords_path, model):
   dataset = tf.data.TFRecordDataset(tfrecords_path)
   dataset = dataset.map(parser)
   dataset = dataset.shuffle(buffer_size=256)
@@ -28,35 +28,70 @@ def my_input_fn(tfrecords_path):
 
   batch_mfccs, batch_labels = iterator.get_next()
 
-  return batch_mfccs, batch_labels
-
-
-# Create the feature_columns, which specifies the input to our model.
-# I have 377 floats for each mfcc window
-feature_columns = [tf.feature_column.numeric_column(key='mfccs', dtype=tf.float64, shape=(377,))]
-
-
-# Use the DNNClassifier pre-made estimator
-classifier = tf.estimator.DNNClassifier(
-  feature_columns=feature_columns, # The input features to our model
-  hidden_units=[10, 10], # Two layers, each with 10 neurons
-  n_classes=96,
-  model_dir='/tmp/tf') # Path to where checkpoints etc are stored
+  if model == "dnn":
+    output = (batch_mfccs, batch_labels)
+  elif model == "kmeans":
+    output = batch_mfccs
+    
+  return output
 
 
 
-train_spec = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/train.tfrecords') , max_steps=1000)
-eval_spec = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords') )
+def zscore(in_tensor):
+  '''
+  Some normalization for audio feats
+  (value − min_value) / (max_value − min_value)
+  '''
+  out_tensor = tf.div(
+    tf.subtract(
+      in_tensor,
+      tf.reduce_min(in_tensor)
+    ),
+    tf.subtract(
+      tf.reduce_max(in_tensor),
+      tf.reduce_min(in_tensor)
+    )
+  )
+  return(in_tensor)
 
-tf.estimator.train_and_evaluate(classifier, train_spec, eval_spec)
+  
+
+# K-Means
+KMeansEstimator = tf.contrib.factorization.KMeansClustering(
+  num_clusters=500,
+  feature_columns = [tf.feature_column.numeric_column(
+    key='mfccs',
+    dtype=tf.float64,
+    shape=(377,),
+    normalizer_fn =  lambda x: zscore(x)
+  )], # The input features to our model
+  use_mini_batch=False)
+
+# DNN
+DNNClassifier = tf.estimator.DNNClassifier(
+  feature_columns = [tf.feature_column.numeric_column(key='mfccs', dtype=tf.float64, shape=(377,))], # The input features to our model
+  hidden_units = [10, 10], # Two layers, each with 10 neurons
+  n_classes = 96,
+  model_dir = '/tmp/tf') # Path to where checkpoints etc are stored
 
 
+# Define train and eval specs
+train_spec_dnn = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/train.tfrecords', 'dnn') , max_steps=1000)
+eval_spec_dnn = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'dnn') )
 
-exit()                                                                                         
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/csv.tfrecords', 'kmeans') , max_steps=1)
+eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans') )
 
 
-# def train_kmeans(batch):
-#     kmeansEstimator = tf.contrib.factorization.KMeansClustering(num_clusters=1000, use_mini_batch=False)
-#     kmeansEstimator.train(batch)
-#     centers = kmeansEstimator.cluster_centers()
-#     return centers
+# print("Train and Evaluate DNN")
+# tf.estimator.train_and_evaluate(DNNClassifier, train_spec_dnn, eval_spec_dnn)
+
+print("Train and Evaluate K-Means")
+tf.estimator.train_and_evaluate(KMeansEstimator, train_spec_kmeans, eval_spec_kmeans)
+
+
+# map the input points to their clusters
+cluster_centers = KMeansEstimator.cluster_centers()
+cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans')))
+for i in cluster_indices:
+  print(i)
