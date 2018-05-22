@@ -1,8 +1,6 @@
 import tensorflow as tf
 
 
-
-
   
 
 def parser(record):
@@ -20,9 +18,9 @@ def parser(record):
 def my_input_fn(tfrecords_path, model):
   dataset = tf.data.TFRecordDataset(tfrecords_path)
   dataset = dataset.map(parser)
-  dataset = dataset.shuffle(buffer_size=256)
+  dataset = dataset.shuffle(buffer_size=5000)
 
-  dataset = dataset.batch(1)
+  dataset = dataset.batch(32)
   
   iterator = dataset.make_one_shot_iterator()
 
@@ -56,42 +54,52 @@ def zscore(in_tensor):
 
   
 
-# K-Means
-KMeansEstimator = tf.contrib.factorization.KMeansClustering(
-  num_clusters=500,
-  feature_columns = [tf.feature_column.numeric_column(
-    key='mfccs',
-    dtype=tf.float64,
-    shape=(377,),
-    normalizer_fn =  lambda x: zscore(x)
-  )], # The input features to our model
-  use_mini_batch=False)
+# # K-Means
+
+# train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/csv.tfrecords', 'kmeans') , max_steps=1)
+# eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans') )
+
+# KMeansEstimator = tf.contrib.factorization.KMeansClustering(
+#   num_clusters=500,
+#   feature_columns = [tf.feature_column.numeric_column(
+#     key='mfccs',
+#     dtype=tf.float64,
+#     shape=(377,),
+#     normalizer_fn =  lambda x: zscore(x)
+#   )], # The input features to our model
+#   use_mini_batch=False)
+
+# print("Train and Evaluate K-Means")
+# tf.estimator.train_and_evaluate(KMeansEstimator, train_spec_kmeans, eval_spec_kmeans)
+
+# # map the input points to their clusters
+# cluster_centers = KMeansEstimator.cluster_centers()
+# cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans')))
+# for i in cluster_indices:
+#   print(i)
+
+
+
 
 # DNN
+
+# Define train and eval specs
+train_spec_dnn = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/train.tfrecords', 'dnn') , max_steps=100000)
+eval_spec_dnn = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'dnn') )
+
 DNNClassifier = tf.estimator.DNNClassifier(
   feature_columns = [tf.feature_column.numeric_column(key='mfccs', dtype=tf.float64, shape=(377,))], # The input features to our model
-  hidden_units = [10, 10], # Two layers, each with 10 neurons
+  hidden_units = [256, 256, 256, 256], # Two layers, each with 10 neurons
   n_classes = 96,
   model_dir = '/tmp/tf') # Path to where checkpoints etc are stored
 
 
-# Define train and eval specs
-train_spec_dnn = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/train.tfrecords', 'dnn') , max_steps=1000)
-eval_spec_dnn = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'dnn') )
+print("Train and Evaluate DNN")
+tf.estimator.train_and_evaluate(DNNClassifier, train_spec_dnn, eval_spec_dnn)
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/csv.tfrecords', 'kmeans') , max_steps=1)
-eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans') )
+predictions = list(DNNClassifier.predict(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'dnn')))
 
+for logits in predictions:
+  print(logits['probabilities'])
+  
 
-# print("Train and Evaluate DNN")
-# tf.estimator.train_and_evaluate(DNNClassifier, train_spec_dnn, eval_spec_dnn)
-
-print("Train and Evaluate K-Means")
-tf.estimator.train_and_evaluate(KMeansEstimator, train_spec_kmeans, eval_spec_kmeans)
-
-
-# map the input points to their clusters
-cluster_centers = KMeansEstimator.cluster_centers()
-cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans')))
-for i in cluster_indices:
-  print(i)
