@@ -16,11 +16,12 @@ def parser(record):
 
 
 def my_input_fn(tfrecords_path, model):
-  dataset = tf.data.TFRecordDataset(tfrecords_path)
-  dataset = dataset.map(parser)
-  dataset = dataset.shuffle(buffer_size=5000)
-
-  dataset = dataset.batch(32)
+  dataset = (
+    tf.data.TFRecordDataset(tfrecords_path)
+    .map(parser)
+    .shuffle(buffer_size=5000)
+    .batch(32)
+  )
   
   iterator = dataset.make_one_shot_iterator()
 
@@ -56,7 +57,7 @@ def zscore(in_tensor):
 
 # K-Means
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/csv.tfrecords', 'kmeans') , max_steps=5000)
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/csv.tfrecords', 'kmeans') , max_steps=500)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
@@ -65,7 +66,7 @@ KMeansEstimator = tf.contrib.factorization.KMeansClustering(
     key='mfccs',
     dtype=tf.float64,
     shape=(377,),
-    normalizer_fn =  lambda x: x # zscore(x)
+    normalizer_fn =  lambda x: zscore(x)
   )], # The input features to our model
   use_mini_batch=True)
 
