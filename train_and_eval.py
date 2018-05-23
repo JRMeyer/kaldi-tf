@@ -19,7 +19,6 @@ def my_input_fn(tfrecords_path, model):
   dataset = (
     tf.data.TFRecordDataset(tfrecords_path)
     .map(parser)
-    .shuffle(buffer_size=5000)
     .batch(32)
   )
   
@@ -75,9 +74,11 @@ tf.estimator.train_and_evaluate(KMeansEstimator, train_spec_kmeans, eval_spec_km
 
 # map the input points to their clusters
 cluster_centers = KMeansEstimator.cluster_centers()
-cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans')))
-for i in cluster_indices:
-  print(i)
+cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/csv.tfrecords', 'kmeans')))
+
+with open("tf-labels.txt", "a") as outfile:
+  for i in cluster_indices:
+    print(i, file=outfile)
 
 
 
