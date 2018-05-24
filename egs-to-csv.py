@@ -16,6 +16,9 @@ def extract_windows(eg, line, outfile, win_size=29):
         # cat all feats for that eg/label into a single vector
         catFeats=''
         for row in eg[i:i+win_size]:
+            # remove the trailing \] if it exists (this is just a cleaning step)
+            row = row.replace("]", "")
+            # cat all the rows into one flat vector
             catFeats += (row[0] + ' ')
             
         print(label, catFeats, file=outfile)

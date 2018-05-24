@@ -1,6 +1,4 @@
 import tensorflow as tf
-
-
   
 
 def parser(record):
@@ -56,7 +54,7 @@ def zscore(in_tensor):
 
 # K-Means
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/csv.tfrecords', 'kmeans') , max_steps=500)
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/output.tfrecords', 'kmeans') , max_steps=500)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
@@ -74,7 +72,7 @@ tf.estimator.train_and_evaluate(KMeansEstimator, train_spec_kmeans, eval_spec_km
 
 # map the input points to their clusters
 cluster_centers = KMeansEstimator.cluster_centers()
-cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/csv.tfrecords', 'kmeans')))
+cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/output.tfrecords', 'kmeans')))
 
 with open("tf-labels.txt", "a") as outfile:
   for i in cluster_indices:
