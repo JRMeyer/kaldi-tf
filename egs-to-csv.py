@@ -3,11 +3,13 @@ import re
 
 
 
-def extract_windows(eg, line, outfile, win_size=29):
+def extract_windows(eg, line, regex, outfile, win_size=29):
     '''
     given a line of labels, and the saved block of feature vectors,
     this function will extract windows of a given size and assign them
     to their label in a label -- flattened_data file
+    win_size comes from the left and right context you provided to kaldi 
+    to splice the frames
     '''
 
     # for each label in the nnet3Egs object
@@ -16,24 +18,40 @@ def extract_windows(eg, line, outfile, win_size=29):
         # cat all feats for that eg/label into a single vector
         catFeats=''
         for row in eg[i:i+win_size]:
+
             # remove the trailing \] if it exists (this is just a cleaning step)
-            row = row.replace("]", "")
+            row = row[0].replace("]", "")
             # cat all the rows into one flat vector
-            catFeats += (row[0] + ' ')
+            catFeats += (row + ' ')
             
         print(label, catFeats, file=outfile)
 
 
+def get_eg_dim(arkfile):
+    '''
+    given kaldi ark file in txt format, find the dimension of the target labels
+    '''
+    with open(arkfile, "r") as arkf:
+        for line in arkf:
+            if "dim=" in line:
+                egDim = re.search('dim=([0-9]*)', line).group(1)
+                break
+            else:
+                pass
+
+    return egDim
 
 
 
 
-def main(arkfile, regex, outfile):
+def main(arkfile, outfile):
     '''
     arkfile: is the input ark file from kaldi (egs.ark)
     regex: matches the labels of each eg based on number of dims in output layer
     outfile: where to save the output
     '''
+    regex = re.compile("dim="+ get_eg_dim(arkfile) +" \[ ([0-9]*) ")
+    
     eg=[]
     with open(arkfile,"r") as arkf:
         with open(outfile,"a") as outf:
@@ -44,7 +62,7 @@ def main(arkfile, regex, outfile):
                     pass
                 # if we've hit the labels then we're at the end of the data
                 elif 'output' in line:
-                    extract_windows(eg, line, outf)
+                    extract_windows(eg, line, regex, outf)
                     # this should be one frame of data
                 else:
                     eg.append([line.strip()])
@@ -61,11 +79,12 @@ if __name__ == "__main__":
     # each eg in a frame of egs (ie the
     # ark file contains groups of egs
     # which make sense for TDNN)
-    regex = re.compile("dim=96 \[ ([0-9]*) ") 
 
+
+    
     outfile="output.csv"
     
-    main(arkfile, regex, outfile)
+    main(arkfile, outfile)
 
     print("Extracted egs from " + arkfile + " and printed to " + outfile )
     
