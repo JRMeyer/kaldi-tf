@@ -2,6 +2,12 @@ import tensorflow as tf
   
 
 def parser(record):
+  '''
+  this is a parser function. It defines the template for
+  interpreting the examples you're feeding in. Basically, 
+  this function defines what the labels and data look like
+  for your labeled data. 
+  '''
   features={
     'mfccs': tf.FixedLenFeature([], tf.string),
     'label': tf.FixedLenFeature([], tf.int64),
@@ -13,11 +19,18 @@ def parser(record):
   return {'mfccs': mfccs}, label
 
 
+
 def my_input_fn(tfrecords_path, model):
+  '''
+  this is an Estimator input function. it defines things
+  like datasets and batches, and can perform operations
+  such as shuffling
+  The dataset and iterator are both defined here.
+  '''
   dataset = (
     tf.data.TFRecordDataset(tfrecords_path)
     .map(parser)
-    .batch(32)
+    .batch(1024)
   )
   
   iterator = dataset.make_one_shot_iterator()
@@ -48,17 +61,17 @@ def zscore(in_tensor):
       tf.reduce_min(in_tensor)
     )
   )
-  return(out_tensor)
+  return out_tensor
 
   
 
 # K-Means
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/output.tfrecords', 'kmeans') , max_steps=500)
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/train.tfrecords', 'kmeans') , max_steps=None)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
-  num_clusters=96,
+  num_clusters=500,
   feature_columns = [tf.feature_column.numeric_column(
     key='mfccs',
     dtype=tf.float64,
@@ -72,7 +85,7 @@ tf.estimator.train_and_evaluate(KMeansEstimator, train_spec_kmeans, eval_spec_km
 
 # map the input points to their clusters
 cluster_centers = KMeansEstimator.cluster_centers()
-cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/output.tfrecords', 'kmeans')))
+cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/all.tfrecords', 'kmeans')))
 
 with open("tf-labels.txt", "a") as outfile:
   for i in cluster_indices:
