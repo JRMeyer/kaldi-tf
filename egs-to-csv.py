@@ -1,3 +1,10 @@
+# Joshua Meyer 2018
+#
+# $ python3 egs-to-csv.py path/to/txt/egs.txt
+#
+
+
+
 import sys
 import re
 
