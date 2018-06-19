@@ -7,15 +7,16 @@ i=0;
 while read line; do
 
     case $line in
-	*08113*)
+	*output*)
 	    
 	    i=$((i+8))
 	    
 	    matches=$( head -$i $LABELS | tail -n8 )
-	    for match in $matches;
-	    do
-		echo $match
-	    done	 
+	    echo $matches
+	    # for match in $matches;
+	    # do
+	    # 	echo $match
+	    # done	 
 	    echo 'HIT LINE' $i;
 
 	    ;;
