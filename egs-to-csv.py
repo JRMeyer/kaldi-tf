@@ -57,7 +57,8 @@ def main(arkfile, outfile):
     regex: matches the labels of each eg based on number of dims in output layer
     outfile: where to save the output
     '''
-    regex = re.compile("dim="+ get_eg_dim(arkfile) +" \[ ([0-9]*) ")
+    
+    regex = re.compile("dim=[0-9]+ \[ ([0-9]+) ")
     
     eg=[]
     with open(arkfile,"r") as arkf:
@@ -82,6 +83,10 @@ if __name__ == "__main__":
     # to txt via nnet3-copy-egs
     arkfile=sys.argv[1]
     outfile=sys.argv[2]
+
+    # print the dimension of the arkfile to disk for downstream use
+    with open('DIM','w') as dimfile:
+        print(get_eg_dim(arkfile), file=dimfile)    
 
     # this regex matches the label for
     # each eg in a frame of egs (ie the

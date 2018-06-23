@@ -5,7 +5,7 @@ echo "### SPLIT ARK FOR MULTIPLE JOBS ###"
 
 ARKFILE=$1
 MAPPINGS=$2
-
+DIM=$3
 
 num_lines=(`wc -l $ARKFILE`)
 num_processors=(`nproc`)
@@ -29,7 +29,7 @@ for i in ARK_split*.tmp; do
 	mapArr=($mapping)
 	old=${mapArr[0]}
 	new=${mapArr[1]}
-	sed -Ei "s/dim=736 \[ ${old} 1 \]/dim=736 \[ ${new} 1 \]/g" $i
+	sed -Ei "s/dim=${DIM} \[ ${old} 1 \]/dim=${DIM} \[ ${new} 1 \]/g" $i
     done <$MAPPINGS &
     proc_ids+=($!)
 done
