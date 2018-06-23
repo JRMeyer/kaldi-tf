@@ -45,8 +45,9 @@ cp $INARK tmp.arkfile
 ./faster-mapping.sh tmp.arkfile mapping.txt
 cat ARK_split* > $OUTARK
 
-exit 0;
 
 # CLEAN-UP
 
 rm tmp.arkfile ARK_split* mapping.txt kaldi-labels.txt tf-labels.txt combined-labels.txt all.csv eval.csv train.csv all.tfrecords eval.tfrecords train.tfrecords
+
+echo "Your original Kaldi egs ($INARK) have been modified and save to $OUTARK"
