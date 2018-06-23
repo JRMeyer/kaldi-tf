@@ -15,7 +15,7 @@ python3 egs-to-csv.py $INARK ark.csv
 # in the scripts
 cp ark.csv all.csv
 mv ark.csv train.csv
-tail -n500 ark.csv > eval.csv
+tail -n500 all.csv > eval.csv
 
 # CSV --> TFRECORDS
 
