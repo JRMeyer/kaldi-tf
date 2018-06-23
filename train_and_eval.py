@@ -76,7 +76,7 @@ train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
-    num_clusters=500,
+    num_clusters=250,
     feature_columns = [tf.feature_column.numeric_column(
         key='mfccs',
         dtype=tf.float64,

@@ -19,6 +19,7 @@ tail -n500 all.csv > eval.csv
 
 # CSV --> TFRECORDS
 
+
 python3 csv-to-tfrecords.py all.csv all.tfrecords
 python3 csv-to-tfrecords.py eval.csv eval.tfrecords
 python3 csv-to-tfrecords.py train.csv train.tfrecords
@@ -37,10 +38,14 @@ paste -d' ' kaldi-labels.txt tf-labels.txt > combined-labels.txt
 python3 vote.py combined-labels.txt > mapping.txt
 
 
+
+
 # PERFORM MAPPING
-cp $ARKFILE tmp.arkfile
+cp $INARK tmp.arkfile
 ./faster-mapping.sh tmp.arkfile mapping.txt
 cat ARK_split* > $OUTARK
+
+exit 0;
 
 # CLEAN-UP
 
