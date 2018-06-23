@@ -72,8 +72,8 @@ def zscore(in_tensor):
 
 # K-Means
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('/home/ubuntu/train.tfrecords', 'kmeans') , max_steps=100000)
-eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('/home/ubuntu/eval.tfrecords', 'kmeans') )
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=10000)
+eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
     num_clusters=500,
@@ -93,7 +93,7 @@ tf.estimator.train_and_evaluate(KMeansEstimator, train_spec_kmeans, eval_spec_km
 
 # map the input points to their clusters
 cluster_centers = KMeansEstimator.cluster_centers()
-cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('/home/ubuntu/all.tfrecords', 'kmeans')))
+cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('all.tfrecords', 'kmeans')))
 
 with open("tf-labels.txt", "a") as outfile:
     for i in cluster_indices:

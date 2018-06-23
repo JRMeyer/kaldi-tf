@@ -1,6 +1,6 @@
 # Joshua Meyer 2018
 #
-# $ python3 egs-to-csv.py path/to/txt/egs.txt
+# $ python3 egs-to-csv.py in-egs.txt out-egs.csv
 #
 
 
@@ -80,7 +80,8 @@ if __name__ == "__main__":
         
     # this is a kaldi nnet3Egs ark file which has been converted
     # to txt via nnet3-copy-egs
-    arkfile=sys.argv[1] 
+    arkfile=sys.argv[1]
+    outfile=sys.argv[2]
 
     # this regex matches the label for
     # each eg in a frame of egs (ie the
@@ -88,9 +89,6 @@ if __name__ == "__main__":
     # which make sense for TDNN)
 
 
-    
-    outfile="output.csv"
-    
     main(arkfile, outfile)
 
     print("Extracted egs from " + arkfile + " and printed to " + outfile )
