@@ -5,9 +5,9 @@
 # No CLI args (tfrecords paths are hardcoded)
 
 import tensorflow as tf
-  
+import multiprocessing # this gets us the number of CPU cores on the machine
 
-def parser(record):
+def parse_fn(record):
     '''
     this is a parser function. It defines the template for
     interpreting the examples you're feeding in. Basically,
@@ -35,9 +35,29 @@ def my_input_fn(tfrecords_path, model):
     '''
     dataset = (
         tf.data.TFRecordDataset(tfrecords_path)
-        .map(parser)
+        .map(parse_fn)
         .batch(1024)
     )
+
+    # dataset = (
+    #     tf.data.TFRecordDataset(tfrecords_path)
+    #     .map(parse_fn,num_parallel_calls=multiprocessing.cpu_count())
+    #     .batch(1024)
+    #     .prefetch(1024)
+    # )
+
+    # dataset = (
+    #     tf.data.TFRecordDataset(tfrecords_path)
+    #     .apply(
+    #         tf.contrib.data.map_and_batch(
+    #             map_func=parse_fn,
+    #             batch_size=1024,
+    #             num_parallel_batches=multiprocessing.cpu_count()
+    #         )
+    #     )
+    #     .prefetch(1024)
+    # )
+    
     
     iterator = dataset.make_one_shot_iterator()
     
@@ -72,11 +92,11 @@ def zscore(in_tensor):
 
 # K-Means
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=10000)
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=1000)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
-    num_clusters=250,
+    num_clusters=10,
     feature_columns = [tf.feature_column.numeric_column(
         key='mfccs',
         dtype=tf.float64,
