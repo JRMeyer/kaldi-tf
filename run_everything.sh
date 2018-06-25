@@ -30,8 +30,7 @@ python3 csv-to-tfrecords.py train.csv train.tfrecords
 # TRAIN K-MEANS
 
 # returns tf-labels.txt
-python3 train_and_eval.py
-
+time python3 train_and_eval.py
 
 # VOTE FOR MAPPINGS
 

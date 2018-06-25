@@ -33,30 +33,18 @@ def my_input_fn(tfrecords_path, model):
     such as shuffling
     The dataset and iterator are both defined here.
     '''
+
     dataset = (
         tf.data.TFRecordDataset(tfrecords_path)
-        .map(parse_fn)
-        .batch(1024)
+        .apply(
+            tf.contrib.data.map_and_batch(
+                map_func=parse_fn,
+                batch_size=1024,
+                num_parallel_batches=multiprocessing.cpu_count()
+            )
+        )
+        .prefetch(1024)
     )
-
-    # dataset = (
-    #     tf.data.TFRecordDataset(tfrecords_path)
-    #     .map(parse_fn,num_parallel_calls=multiprocessing.cpu_count())
-    #     .batch(1024)
-    #     .prefetch(1024)
-    # )
-
-    # dataset = (
-    #     tf.data.TFRecordDataset(tfrecords_path)
-    #     .apply(
-    #         tf.contrib.data.map_and_batch(
-    #             map_func=parse_fn,
-    #             batch_size=1024,
-    #             num_parallel_batches=multiprocessing.cpu_count()
-    #         )
-    #     )
-    #     .prefetch(1024)
-    # )
     
     
     iterator = dataset.make_one_shot_iterator()
