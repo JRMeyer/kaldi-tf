@@ -1,4 +1,4 @@
-# Joshua Meyer 2018
+# Josh Meyer // jrmeyer.github.io
 #
 # $ python3 egs-to-csv.py path/to/txt/egs.txt
 #

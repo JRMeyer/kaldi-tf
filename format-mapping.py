@@ -1,3 +1,5 @@
+# Josh Meyer // jrmeyer.github.io
+
 # This script fixes the problem that occurs if the TF clusters (their IDs) are
 # larger than the dimensionality of the original Kaldi eg. this problem only shows up
 # when you train the modified egs in Kaldi, and the new target IDs happen to be

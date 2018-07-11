@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# Josh Meyer // jrmeyer.github.io
+
 #
 # this script should take in an ark file in txt form and return an arkfile
 # in txt form

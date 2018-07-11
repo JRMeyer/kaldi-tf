@@ -1,4 +1,5 @@
 #!/bin/bash
+# Josh Meyer // jrmeyer.github.io
 
 echo "### SPLIT ARK FOR MULTIPLE JOBS ###"
 

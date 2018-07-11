@@ -1,3 +1,5 @@
+# Josh Meyer // jrmeyer.github.io
+
 import sys
 import collections
 

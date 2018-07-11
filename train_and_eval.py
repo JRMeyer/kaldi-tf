@@ -1,4 +1,4 @@
-#  Joshua Meyer 2018
+# Josh Meyer // jrmeyer.github.io
 #
 # $ python3 train_and_eval.py
 #
