@@ -20,7 +20,7 @@ python3 egs-to-csv.py tmp.arkfile ark.csv
 # in the scripts
 cp ark.csv all.csv
 mv ark.csv train.csv
-tail -n500 all.csv > eval.csv
+tail -n100 all.csv > eval.csv
 
 # CSV --> TFRECORDS
 
@@ -51,6 +51,6 @@ time python3 train_and_eval.py
 
 # # CLEAN-UP
 
-# rm DIM tmp.arkfile ARK_split* mapping.txt kaldi-labels.txt tf-labels.txt combined-labels.txt all.csv eval.csv train.csv all.tfrecords eval.tfrecords train.tfrecords formatted-mapping.txt
+rm DIM tmp.arkfile ARK_split* mapping.txt kaldi-labels.txt combined-labels.txt eval.csv train.csv all.tfrecords eval.tfrecords train.tfrecords formatted-mapping.txt
 
 # echo "Your original Kaldi egs ($INARK) have been modified and save to $OUTARK"

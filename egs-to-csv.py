@@ -10,7 +10,7 @@ import re
 
 
 
-def extract_windows(eg, line, regex, outfile, win_size=29):
+def extract_windows(eg, line, regex, outfile, win_size=62):
     '''
     given a line of labels, and the saved block of feature vectors,
     this function will extract windows of a given size and assign them
