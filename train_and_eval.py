@@ -88,7 +88,7 @@ KMeansEstimator = tf.contrib.factorization.KMeansClustering(
     feature_columns = [tf.feature_column.numeric_column(
         key='mfccs',
         dtype=tf.float64,
-        shape=(377,),
+        shape=(806,),
         normalizer_fn =  lambda x: zscore(x)
     )], # The input features to our model
     model_dir = '/tmp/tf',
