@@ -18,9 +18,9 @@ with open(oldMappings) as orgMap:
         if clusterID in newMap:
             pass
         else:
-            i+=1
             newMap[clusterID]=i
-
+            i+=1
+        
 with open(newMappings, 'w') as newFile:
     with open(oldMappings) as orgMap:
         for line in orgMap.readlines():

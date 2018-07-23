@@ -80,7 +80,7 @@ def zscore(in_tensor):
 
 # K-Means
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=10000)
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=1000)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
@@ -105,7 +105,8 @@ cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: 
 
 with open("tf-labels.txt", "a") as outfile:
     for i in cluster_indices:
-        print(i, file=outfile)
+        index = i-1 # kaldi uses zero-based indexes
+        print(index, file=outfile)
 
 
 
