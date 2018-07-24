@@ -8,6 +8,15 @@ ARKFILE=$1
 MAPPINGS=$2
 DIM=$3
 
+# while read mapping; do
+#     mapArr=($mapping)
+#     old=${mapArr[0]}
+#     new=${mapArr[1]}
+#     sed -Ei "s/dim=${DIM} \[ ${old} 1 \]/dim=${DIM} \[ ${new} 1 \]/g" $ARKFILE
+# done <$MAPPINGS &
+
+
+
 num_lines=(`wc -l $ARKFILE`)
 num_processors=(`nproc`)
 segs_per_job=$(( num_lines / num_processors ))
@@ -30,7 +39,7 @@ for i in ARK_split*.tmp; do
 	mapArr=($mapping)
 	old=${mapArr[0]}
 	new=${mapArr[1]}
-	sed -Ei "s/dim=${DIM} \[ ${old} 1 \]/dim=${DIM} \[ ${new} 1 \]/g" $i
+	sed -Ei "s/dim=${DIM} \[ ${old} 1 \]/dim=${DIM} \[ ${new}@1 \]/g" $i  # without the underscores we double replace!!!!
     done <$MAPPINGS &
     proc_ids+=($!)
 done
@@ -39,4 +48,11 @@ done
 for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
 
 
+proc_ids=()
+for i in ARK_split*.tmp; do
+    sed -Ei s'/@/ /g' $i & # without the underscores we double replace!!!!
+    proc_ids+=($!)
+done
+# wait for subprocesses to stop
+for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
 
