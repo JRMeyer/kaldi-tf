@@ -79,6 +79,6 @@ if [ 1 ]; then
 fi
 
 
-rm DIM org-txt-ark ARK_split* mapping.txt tf-labels.txt all.csv kaldi-labels.txt combined-labels.txt eval.csv train.csv all.tfrecords eval.tfrecords train.tfrecords formatted-mapping.txt
+rm *-txt-ark DIM org-txt-ark ARK_split* mapping.txt tf-labels.txt all.csv kaldi-labels.txt combined-labels.txt eval.csv train.csv all.tfrecords eval.tfrecords train.tfrecords formatted-mapping.txt
 
 
