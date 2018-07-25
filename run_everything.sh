@@ -39,7 +39,9 @@ if [ 1 ]; then
     python3 csv-to-tfrecords.py eval.csv eval.tfrecords
     python3 csv-to-tfrecords.py train.csv train.tfrecords
     # TRAIN K-MEANS
-
+    echo "### TRAIN AND EVAL MODEL  ###"
+    echo "# remove old model in /tmp/tf"
+    rm -rf /tmp/tf
     time python3 train_and_eval.py     ## returns tf-labels.txt
     
 fi
