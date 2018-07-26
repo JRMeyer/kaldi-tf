@@ -103,6 +103,6 @@ if [ 1 ]; then
 fi
 
 
-rm *-txt-ark DIM *.txt *.csv *.tfrecords *.tmp
+rm *-txt-ark DIM *.txt *.csv *.tfrecords *.tmp *.mod
 
 
