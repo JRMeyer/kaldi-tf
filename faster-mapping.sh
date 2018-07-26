@@ -39,7 +39,7 @@ for i in ARK_split*.tmp; do
 	mapArr=($mapping)
 	old=${mapArr[0]}
 	new=${mapArr[1]}
-	sed -Ei "s/dim=${DIM} \[ ${old} 1 \]/dim=${DIM} \[ ${new}@1 \]/g" $i  # without the underscores we double replace!!!!
+	sed -Ei "s/dim=${DIM} \[ ${old} /dim=${DIM} \[ ${new}@ /g" $i  # without the underscores we double replace!!!!
     done <$MAPPINGS &
     proc_ids+=($!)
 done
@@ -50,7 +50,7 @@ for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
 
 proc_ids=()
 for i in ARK_split*.tmp; do
-    sed -Ei s'/@/ /g' $i & # without the underscores we double replace!!!!
+    sed -Ei s'/@//g' $i & # without the underscores we double replace!!!!
     proc_ids+=($!)
 done
 # wait for subprocesses to stop
