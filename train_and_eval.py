@@ -80,7 +80,7 @@ def zscore(in_tensor):
 
 # K-Means
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=1000)
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=50000)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
