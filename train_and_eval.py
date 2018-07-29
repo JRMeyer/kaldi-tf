@@ -39,11 +39,11 @@ def my_input_fn(tfrecords_path, model):
         .apply(
             tf.contrib.data.map_and_batch(
                 map_func=parse_fn,
-                batch_size=1024,
+                batch_size=4096,
                 num_parallel_batches=multiprocessing.cpu_count()
             )
         )
-        .prefetch(1024)
+        .prefetch(4096)
     )
     
     
@@ -76,15 +76,22 @@ def zscore(in_tensor):
         )
     )
     return out_tensor
-  
 
-# K-Means
+
+
+### Multi-GPU training config ###
+
+distribution = tf.contrib.distribute.MirroredStrategy()
+run_config = tf.estimator.RunConfig(train_distribute=distribution)
+
+
+### K-Means ###
 
 train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=50000)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
-    num_clusters=256,
+    num_clusters=1024,
     feature_columns = [tf.feature_column.numeric_column(
         key='mfccs',
         dtype=tf.float64,
@@ -92,7 +99,8 @@ KMeansEstimator = tf.contrib.factorization.KMeansClustering(
         normalizer_fn =  lambda x: zscore(x)
     )], # The input features to our model
     model_dir = '/tmp/tf',
-    use_mini_batch=True)
+    use_mini_batch = True,
+    config = run_config)
 
 
 print("Train and Evaluate K-Means")
