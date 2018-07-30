@@ -35,7 +35,8 @@ def my_input_fn(tfrecords_path, model):
     '''
 
     dataset = (
-        tf.data.TFRecordDataset(tfrecords_path)
+        tf.data.TFRecordDataset(tfrecords_path,
+                                num_parallel_reads=multiprocessing.cpu_count())
         .apply(
             tf.contrib.data.map_and_batch(
                 map_func=parse_fn,
