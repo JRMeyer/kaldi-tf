@@ -8,14 +8,6 @@ ARKFILE=$1
 MAPPINGS=$2
 DIM=$3
 
-# while read mapping; do
-#     mapArr=($mapping)
-#     old=${mapArr[0]}
-#     new=${mapArr[1]}
-#     sed -Ei "s/dim=${DIM} \[ ${old} 1 \]/dim=${DIM} \[ ${new} 1 \]/g" $ARKFILE
-# done <$MAPPINGS &
-
-
 
 num_lines=(`wc -l $ARKFILE`)
 num_processors=(`nproc`)
@@ -39,7 +31,7 @@ for i in ARK_split*.tmp; do
 	mapArr=($mapping)
 	old=${mapArr[0]}
 	new=${mapArr[1]}
-	sed -Ei "s/dim=${DIM} \[ ${old} /dim=${DIM} \[ ${new}@ /g" $i  # without the underscores we double replace!!!!
+	parallel --pipepart --block 5M -a $i -k sed "s/dim=${DIM} \[ ${old} /dim=${DIM} \[ ${new}@ /g" > ${i}.mod # without the underscores we double replace!!!!
     done <$MAPPINGS &
     proc_ids+=($!)
 done
@@ -47,12 +39,16 @@ done
 # wait for subprocesses to stop
 for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
 
+rm ARK_split*.tmp
 
 proc_ids=()
-for i in ARK_split*.tmp; do
-    sed -Ei s'/@//g' $i & # without the underscores we double replace!!!!
+for i in ARK_split*.mod; do
+    parallel --pipepart --block 5M -a $i -k sed "s/@//g" > ${i}.tmp & # without the underscores we double replace!!!!
     proc_ids+=($!)
 done
+
+
 # wait for subprocesses to stop
 for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
 
+rm ARK_split*.mod
