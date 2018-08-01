@@ -6,6 +6,11 @@
 
 import tensorflow as tf
 import multiprocessing # this gets us the number of CPU cores on the machine
+import sys
+
+
+data_dir=sys.argv[1] # where are the tfrecords files?
+
 
 def parse_fn(record):
     '''
@@ -89,11 +94,11 @@ run_config = tf.estimator.RunConfig()
 
 ### K-Means ###
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn('train.tfrecords', 'kmeans') , max_steps=10000)
-eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn('eval.tfrecords', 'kmeans') )
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'train.tfrecords', 'kmeans') , max_steps=10000)
+eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
-    num_clusters=1024,
+    num_clusters=256,
     feature_columns = [tf.feature_column.numeric_column(
         key='mfccs',
         dtype=tf.float64,
@@ -111,9 +116,9 @@ tf.estimator.train_and_evaluate(KMeansEstimator, train_spec_kmeans, eval_spec_km
 
 # map the input points to their clusters
 cluster_centers = KMeansEstimator.cluster_centers()
-cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn('all.tfrecords', 'kmeans')))
+cluster_indices = list(KMeansEstimator.predict_cluster_index(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'all.tfrecords', 'kmeans')))
 
-with open("tf-labels.txt", "a") as outfile:
+with open(str(data_dir) + '/' + "tf-labels.txt", "a") as outfile:
     for i in cluster_indices:
         index = i-1 # kaldi uses zero-based indexes
         print(index, file=outfile)
