@@ -7,6 +7,7 @@ echo "### SPLIT ARK FOR MULTIPLE JOBS ###"
 ARKFILE=$1
 MAPPINGS=$2
 DIM=$3
+TMP_DIR=$4
 
 
 num_lines=(`wc -l $ARKFILE`)
@@ -17,7 +18,7 @@ echo "$0: processing $num_lines segments from $ARKFILE"
 echo "$0: splitting segments over $num_processors CPUs"
 echo "$0: with $segs_per_job segments per job."
 # will split into segments00 segments01 ... etc
-split -l $segs_per_job --numeric-suffixes --additional-suffix=.tmp $ARKFILE ARK_split
+split -l $segs_per_job --numeric-suffixes --additional-suffix=.tmp $ARKFILE $TMP_DIR/ARK_split
 
 
 
@@ -26,7 +27,7 @@ split -l $segs_per_job --numeric-suffixes --additional-suffix=.tmp $ARKFILE ARK_
 # make an array for proc ids
 proc_ids=()
 
-for i in ARK_split*.tmp; do
+for i in $TMP_DIR/ARK_split*.tmp; do
     while read mapping; do
 	mapArr=($mapping)
 	old=${mapArr[0]}
@@ -42,7 +43,7 @@ for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
 rm ARK_split*.tmp
 
 proc_ids=()
-for i in ARK_split*.mod; do
+for i in $TMP_DIR/ARK_split*.mod; do
     parallel --pipepart --block 5M -a $i -k sed "s/@//g" > ${i}.tmp & # without the underscores we double replace!!!!
     proc_ids+=($!)
 done
