@@ -82,11 +82,8 @@ if __name__ == "__main__":
     # to txt via nnet3-copy-egs
     arkfile=sys.argv[1]
     outfile=sys.argv[2]
-    data_dir=sys.argv[3]
-
+    
     # print the dimension of the arkfile to disk for downstream use
-    with open(str(data_dir) + '/' + 'DIM','w') as dimfile:
-        print(get_eg_dim(arkfile), file=dimfile)    
 
     # this regex matches the label for
     # each eg in a frame of egs (ie the
