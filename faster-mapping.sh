@@ -16,11 +16,10 @@ while read mapping; do
     old=${mapArr[0]}
     new=${mapArr[1]}
     sed_command="s/ \[ ${old} / \[ ${new}@ /g"
-    parallel --pipepart --block 10M -a $ARKFILE -k sed -e \" $sed_command \" > $TMP_DIR/ARK_split_00.mod
+    parallel --pipepart --block 50M -a $ARKFILE -k sed -Ei \" $sed_command \"
 done <$MAPPINGS
 
-parallel --pipepart --block 10M -a $TMP_DIR/ARK_split_00.mod -k 'sed "s/@//g"' > $TMP_DIR/ARK_split_00.tmp
-
+parallel --pipepart --block 50M -a $ARKFILE 'sed -Ei "s/@//g"'
 
 rm $TMP_DIR/ARK_split_00.mod
 
