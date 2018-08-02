@@ -6,63 +6,49 @@ echo "### SPLIT ARK FOR MULTIPLE JOBS ###"
 
 ARKFILE=$1
 MAPPINGS=$2
-DIM=$3
-TMP_DIR=$4
+TMP_DIR=$3
 
 
 
-while read mapping; do
-    mapArr=($mapping)
-    old=${mapArr[0]}
-    new=${mapArr[1]}
-    sed_command="s/ \[ ${old} / \[ ${new}@ /g"
-    parallel --pipepart --block 10M -a $ARKFILE -k sed -e \" $sed_command \" > $TMP_DIR/ARK_split_00.mod
-done <$MAPPINGS
+#### MANUAL SHARD ####
 
-parallel --pipepart --block 10M -a $TMP_DIR/ARK_split_00.mod -k 'sed "s/@//g"' > $TMP_DIR/ARK_split_00.tmp
+num_lines=(`wc -l $ARKFILE`)
+num_processors=(`nproc`)
+segs_per_job=$(( num_lines / num_processors ))
 
+echo "$0: processing $num_lines segments from $ARKFILE"
+echo "$0: splitting segments over $num_processors CPUs"
+echo "$0: with $segs_per_job segments per job."
 
-rm $TMP_DIR/ARK_split_00.mod
+# will split into segments00 segments01 ... etc
+split -l $segs_per_job --numeric-suffixes --additional-suffix=.tmp $ARKFILE $TMP_DIR/ARK_split
 
+proc_ids=() # make an array for proc ids
 
-
-# num_lines=(`wc -l $ARKFILE`)
-# num_processors=(`nproc`)
-# segs_per_job=$(( num_lines / num_processors ))
-
-# echo "$0: processing $num_lines segments from $ARKFILE"
-# echo "$0: splitting segments over $num_processors CPUs"
-# echo "$0: with $segs_per_job segments per job."
-# # will split into segments00 segments01 ... etc
-# split -l $segs_per_job --numeric-suffixes --additional-suffix=.tmp $ARKFILE $TMP_DIR/ARK_split
-
-# # make an array for proc ids
-# proc_ids=()
-
-# for i in $TMP_DIR/ARK_split*.tmp; do
-#     while read mapping; do
-# 	mapArr=($mapping)
-# 	old=${mapArr[0]}
-# 	new=${mapArr[1]}
-# 	sed_command="s/ \[ ${old} / \[ ${new}@ /g"
-# 	parallel --pipepart --block 10M -a $i -k sed -e \" $sed_command \" > ${i}.mod # without the underscores we double replace!!!!
-#     done <$MAPPINGS &
-#     proc_ids+=($!)
-# done
-
+for i in $TMP_DIR/ARK_split*.tmp; do
+    while read mapping; do
+	    mapArr=($mapping)
+	    old=${mapArr[0]}
+	    new=${mapArr[1]}
+        sed_command="s/${old}/${new}@/g"
+        # sed_command="s/ \[ ${old} / \[ ${new}@ /g"
+        parallel --pipepart --block 500M -a $i -k sed -e \" $sed_command \" > ${i}.mod
+        mv ${i}.mod $i
+    done <$MAPPINGS &
+    proc_ids+=($!)
+done
 # # wait for subprocesses to stop
-# for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
+for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
 
-# rm ARK_split*.tmp
+###########
 
-# proc_ids=()
-# for i in $TMP_DIR/ARK_split*.mod; do
-#     parallel --pipepart --block 10M -a $i -k 'sed "s/@//g"' > ${i}.tmp & # without the underscores we double replace!!!!
-#     proc_ids+=($!)
-# done
+proc_ids=()
+for i in $TMP_DIR/ARK_split*.tmp; do
+    parallel --pipepart --block 500M -a $i -k 'sed "s/@//g"' > ${i}.final
+    mv ${i}.final $i & 
+    proc_ids+=($!)
+done
 
+# wait for subprocesses to stop
+for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
 
-# # wait for subprocesses to stop
-# for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
-
-# rm ARK_split*.mod
