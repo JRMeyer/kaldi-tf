@@ -27,11 +27,10 @@ proc_ids=() # make an array for proc ids
 
 for i in $TMP_DIR/ARK_split*.tmp; do
     while read mapping; do
-	    mapArr=($mapping)
-	    old=${mapArr[0]}
-	    new=${mapArr[1]}
-        sed_command="s/${old}/${new}@/g"
-        # sed_command="s/ \[ ${old} / \[ ${new}@ /g"
+	mapArr=($mapping)
+	old=${mapArr[0]}
+	new=${mapArr[1]}
+        sed_command="s/ \[ ${old} / \[ ${new}@ /g"
         parallel --pipepart --block 500M -a $i -k sed -e \" $sed_command \" > ${i}.mod
         mv ${i}.mod $i
     done <$MAPPINGS &
