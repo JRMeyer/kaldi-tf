@@ -32,7 +32,8 @@ for i in $TMP_DIR/ARK_split*.tmp; do
 	mapArr=($mapping)
 	old=${mapArr[0]}
 	new=${mapArr[1]}
-	parallel --pipepart --block 5M -a $i -k sed "s/dim=${DIM} \[ ${old} /dim=${DIM} \[ ${new}@ /g" > ${i}.mod # without the underscores we double replace!!!!
+    sed_command=${sed -e "s/ \[ ${old} / \[ ${new}@ /g"}
+	parallel --pipepart --block 5M -a $i -k 'sed -e "s/ \[ ${old} / \[ ${new}@ /g"' > ${i}.mod # without the underscores we double replace!!!!
     done <$MAPPINGS &
     proc_ids+=($!)
 done
