@@ -94,11 +94,11 @@ run_config = tf.estimator.RunConfig()
 
 ### K-Means ###
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'train.tfrecords', 'kmeans') , max_steps=10000)
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'train.tfrecords', 'kmeans') , max_steps=2000)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
-    num_clusters=256,
+    num_clusters=1024,
     feature_columns = [tf.feature_column.numeric_column(
         key='mfccs',
         dtype=tf.float64,
