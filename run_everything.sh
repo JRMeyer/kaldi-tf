@@ -49,7 +49,6 @@ if [ 1 ]; then
     echo "# remove old model in /tmp/tf"
     rm -rf /tmp/tf
     time python3 train_and_eval.py $tmp_dir    ## returns tf-labels.txt
-    
 fi
 
 # VOTE FOR MAPPINGS
@@ -82,15 +81,8 @@ if [ 1 ]; then
     $KALDI ark,t:${tmp_dir}/combine-txt-ark.mod ark,scp:${tmp_dir}/combine.egs,${tmp_dir}/combine.scp
     
     # fix paths
-    egs_path="s/${tmp_dir}\/egs.1.ark/MTL\/exp\/${exp_name}\/nnet3\/egs\/egs.1.ark/g"
-    valid_path="s/${tmp_dir}\/valid_diagnostic.egs/MTL\/exp\/${exp_name}\/nnet3\/egs\/valid_diagnostic.egs/g"
-    train_path="s/${tmp_dir}\/train_diagnostic.egs/MTL\/exp\/${exp_name}\/nnet3\/egs\/train_diagnostic.egs/g"
-    combine_path="s/${tmp_dir}\/combine.egs/MTL\/exp\/${exp_name}\/nnet3\/egs\/combine.egs/g"
-
-    sed -Ei $egs_path ${tmp_dir}/egs.scp
-    sed -Ei $valid_path ${tmp_dir}/valid_diagnostic.scp
-    sed -Ei $train_path ${tmp_dir}/train_diagnostic.scp
-    sed -Ei $combine_path ${tmp_dir}/combine.scp
+    fix_path="s/\/data\/TMP/MTL\/exp\/${exp_name}\/nnet3\/egs/g"
+    sed -Ei $fix_path ${tmp_dir}/*.scp
     
     # move old egs to tmp dir
     mkdir ${path_to_exp}/org-scp-ark
