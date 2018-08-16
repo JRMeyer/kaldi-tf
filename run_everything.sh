@@ -32,41 +32,12 @@ fi
 if [ 1 ]; then
     echo "### CONVERT EGS TO TFRECORDS  ###"
     # EGS --> CSV
-
-#### MANUAL SHARD ####
-
-num_lines=(`wc -l $ARKFILE`)
-num_processors=(`nproc`)
-segs_per_job=$(( num_lines / num_processors ))
-
-echo "$0: processing $num_lines segments from $ARKFILE"
-echo "$0: splitting segments over $num_processors CPUs"
-echo "$0: with $segs_per_job segments per job."
-
-# will split into segments00 segments01 ... etc
-split -l $segs_per_job --numeric-suffixes --additional-suffix=.tmp $ARKFILE $TMP_DIR/ARK_split
-
-proc_ids=() # make an array for proc ids
-for i in $TMP_DIR/ARK_split*.tmp; do
-
-    proc_ids+=($!)
-done
-# wait for subprocesses to stop
-for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
-
-###########
-
-
     
     python3 egs-to-csv.py ${tmp_dir}/org-txt-ark ${tmp_dir}/ark.csv
     # Split data into train / eval / all
     # I know this isn't kosher, but right
     # now idc about eval, it's just a step
     # in the scripts
-
-
-
-
     
     cp ${tmp_dir}/ark.csv ${tmp_dir}/all.csv
     mv ${tmp_dir}/ark.csv ${tmp_dir}/train.csv
@@ -81,6 +52,7 @@ for proc_id in ${proc_ids[*]}; do wait $proc_id; done;
     rm -rf /tmp/tf
     time python3 train_and_eval.py $tmp_dir    ## returns tf-labels.txt
 fi
+
 
 # VOTE FOR MAPPINGS
 if [ 1 ]; then
