@@ -1,3 +1,10 @@
+# josh meyer jrmeyer.github.io
+# 2018
+
+#
+# this script takes in a two-column file (i.e. mapping.txt)
+# where the left column is the triphone id from kaldi and
+# the right col is the new cluster id from tensorflow
 
 import sys
 
@@ -9,9 +16,10 @@ phoneMap={}
 with open(mapping, 'r') as f:
     lines = f.readlines()
     for line in lines:
-        cluster=line.split()[1]
-        phone=line.split()[0]
         
+        phone = line.split()[0]
+        cluster = line.split()[1]
+
         if cluster in phoneMap:
             if phone in phoneMap[cluster]:
                 phoneMap[cluster][phone] = phoneMap[cluster][phone] + 1
