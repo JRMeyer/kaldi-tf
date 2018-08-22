@@ -99,6 +99,6 @@ if [ 1 ]; then
 fi
 
 
-rm ${tmp_dir}/*-txt-ark ${tmp_dir}/*.txt ${tmp_dir}/*.csv ${tmp_dir}/*.tfrecords ${tmp_dir}/*.tmp ${tmp_dir}/*.mod
+rm $tmp_dir/*
 
 
