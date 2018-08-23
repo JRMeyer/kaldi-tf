@@ -45,11 +45,11 @@ def my_input_fn(tfrecords_path, model):
         .apply(
             tf.contrib.data.map_and_batch(
                 map_func=parse_fn,
-                batch_size=1024,
+                batch_size=4096,
                 num_parallel_batches=multiprocessing.cpu_count()
             )
         )
-        .prefetch(1024)
+        .prefetch(4096)
     )
     
     
@@ -94,11 +94,11 @@ run_config = tf.estimator.RunConfig()
 
 ### K-Means ###
 
-train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'train.tfrecords', 'kmeans') , max_steps=2000)
+train_spec_kmeans = tf.estimator.TrainSpec(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'all.tfrecords', 'kmeans') , max_steps=2000)
 eval_spec_kmeans = tf.estimator.EvalSpec(input_fn = lambda: my_input_fn( str(data_dir) + '/' + 'eval.tfrecords', 'kmeans') )
 
 KMeansEstimator = tf.contrib.factorization.KMeansClustering(
-    num_clusters=1024,
+    num_clusters=4096,
     feature_columns = [tf.feature_column.numeric_column(
         key='mfccs',
         dtype=tf.float64,

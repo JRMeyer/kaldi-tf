@@ -39,13 +39,13 @@ if [ 1 ]; then
     # now idc about eval, it's just a step
     # in the scripts
     
-    cp ${tmp_dir}/ark.csv ${tmp_dir}/all.csv
-    mv ${tmp_dir}/ark.csv ${tmp_dir}/train.csv
+    mv ${tmp_dir}/ark.csv ${tmp_dir}/all.csv
+    #mv ${tmp_dir}/ark.csv ${tmp_dir}/train.csv
     tail -n100 ${tmp_dir}/all.csv > ${tmp_dir}/eval.csv
     # CSV --> TFRECORDS
     python3 csv-to-tfrecords.py ${tmp_dir}/all.csv ${tmp_dir}/all.tfrecords
     python3 csv-to-tfrecords.py ${tmp_dir}/eval.csv ${tmp_dir}/eval.tfrecords
-    python3 csv-to-tfrecords.py ${tmp_dir}/train.csv ${tmp_dir}/train.tfrecords
+    #python3 csv-to-tfrecords.py ${tmp_dir}/train.csv ${tmp_dir}/train.tfrecords
     # TRAIN K-MEANS
     echo "### TRAIN AND EVAL MODEL  ###"
     echo "# remove old model in /tmp/tf"

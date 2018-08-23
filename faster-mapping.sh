@@ -31,7 +31,7 @@ for i in $TMP_DIR/ARK_split*.tmp; do
 	old=${mapArr[0]}
 	new=${mapArr[1]}
         sed_command="s/ \[ ${old} / \[ ${new}@ /g"
-        parallel --pipepart --block 500M -a $i -k sed -e \" $sed_command \" > ${i}.mod
+        parallel --pipepart --block 5000M -a $i -k sed -e \" $sed_command \" > ${i}.mod
         mv ${i}.mod $i
     done <$MAPPINGS &
     proc_ids+=($!)
